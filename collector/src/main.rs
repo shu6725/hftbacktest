@@ -8,6 +8,7 @@ use crate::file::Writer;
 mod binance;
 mod binancefuturescm;
 mod binancefuturesum;
+mod bitflyer;
 mod bybit;
 mod coinbase;
 mod error;
@@ -100,6 +101,22 @@ async fn main() -> Result<(), anyhow::Error> {
 
             tokio::spawn(hyperliquid::run_collection(
                 subscriptions,
+                args.symbols,
+                writer_tx,
+            ))
+        }
+        "bitflyer" => {
+            let channel_templates = [
+                "lightning_board_snapshot_$symbol",
+                "lightning_board_$symbol",
+                "lightning_executions_$symbol",
+            ]
+            .iter()
+            .map(|ch| ch.to_string())
+            .collect();
+
+            tokio::spawn(bitflyer::run_collection(
+                channel_templates,
                 args.symbols,
                 writer_tx,
             ))
