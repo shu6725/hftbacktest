@@ -14,7 +14,7 @@ use tokio_tungstenite::{
 };
 use tracing::{error, warn};
 
-const BITFLYER_WS_URL: &str = "wss://ws.lightningapi.com/json-rpc";
+const BITFLYER_WS_URL: &str = "wss://ws.lightstream.bitflyer.com/json-rpc";
 
 pub async fn connect(
     channels: Vec<String>,
