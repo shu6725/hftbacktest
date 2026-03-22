@@ -9,6 +9,7 @@ mod binance;
 mod binancefuturescm;
 mod binancefuturesum;
 mod bybit;
+mod coinbase;
 mod error;
 mod file;
 mod hyperliquid;
@@ -102,6 +103,14 @@ async fn main() -> Result<(), anyhow::Error> {
                 args.symbols,
                 writer_tx,
             ))
+        }
+        "coinbase" => {
+            let channels = ["market_trades", "level2"]
+                .iter()
+                .map(|ch| ch.to_string())
+                .collect();
+
+            tokio::spawn(coinbase::run_collection(channels, args.symbols, writer_tx))
         }
         exchange => {
             return Err(anyhow!("{exchange} is not supported."));
