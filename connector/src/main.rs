@@ -35,6 +35,7 @@ use crate::{
     binancefutures::BinanceFutures,
     binancespot::BinanceSpot,
     bybit::Bybit,
+    bitbank::BitbankSpot,
     connector::{Connector, ConnectorBuilder, GetOrders, PublishEvent},
 };
 
@@ -44,6 +45,8 @@ pub mod binancefutures;
 pub mod binancespot;
 #[cfg(feature = "bybit")]
 pub mod bybit;
+#[cfg(feature = "bitbank")]
+pub mod bitbank;
 
 mod connector;
 //mod fuse;
@@ -402,7 +405,16 @@ async fn main() {
         "binancespot" => {
             let mut connector = BinanceSpot::build_from(&config)
                 .map_err(|error| {
-                    error!(?error, "Couldn't build the Bybit connector.");
+                    error!(?error, "Couldn't build the BinanceSpot connector.");
+                })
+                .unwrap();
+            connector.run(pub_tx.clone());
+            Box::new(connector)
+        }
+        "bitbank" => {
+            let mut connector = BitbankSpot::build_from(&config)
+                .map_err(|error| {
+                    error!(?error, "Couldn't build the BitbankSpot connector.");
                 })
                 .unwrap();
             connector.run(pub_tx.clone());

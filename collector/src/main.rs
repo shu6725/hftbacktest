@@ -6,13 +6,15 @@ use tracing::{error, info};
 use crate::file::Writer;
 
 mod binance;
-mod binancefuturescm;
-mod binancefuturesum;
+mod bitbank;
 mod bitflyer;
 mod bybit;
 mod coinbase;
+mod coincheck;
 mod error;
 mod file;
+mod gmocoin;
+mod gmofx;
 mod hyperliquid;
 mod throttler;
 
@@ -38,40 +40,6 @@ async fn main() -> Result<(), anyhow::Error> {
     let (writer_tx, mut writer_rx) = unbounded_channel();
 
     let handle = match args.exchange.as_str() {
-        "binancefutures" | "binancefuturesum" => {
-            let streams = [
-                "$symbol@trade",
-                "$symbol@bookTicker",
-                "$symbol@depth@0ms",
-                // "$symbol@@markPrice@1s"
-            ]
-            .iter()
-            .map(|stream| stream.to_string())
-            .collect();
-
-            tokio::spawn(binancefuturesum::run_collection(
-                streams,
-                args.symbols,
-                writer_tx,
-            ))
-        }
-        "binancefuturescm" => {
-            let streams = [
-                "$symbol@trade",
-                "$symbol@bookTicker",
-                "$symbol@depth@0ms",
-                // "$symbol@@markPrice@1s"
-            ]
-            .iter()
-            .map(|stream| stream.to_string())
-            .collect();
-
-            tokio::spawn(binancefuturescm::run_collection(
-                streams,
-                args.symbols,
-                writer_tx,
-            ))
-        }
         "binance" | "binancespot" => {
             let streams = ["$symbol@trade", "$symbol@bookTicker", "$symbol@depth@100ms"]
                 .iter()
@@ -128,6 +96,50 @@ async fn main() -> Result<(), anyhow::Error> {
                 .collect();
 
             tokio::spawn(coinbase::run_collection(channels, args.symbols, writer_tx))
+        }
+        "coincheck" => {
+            let channel_templates = ["$symbol-trades", "$symbol-orderbook"]
+                .iter()
+                .map(|ch| ch.to_string())
+                .collect();
+
+            tokio::spawn(coincheck::run_collection(
+                channel_templates,
+                args.symbols,
+                writer_tx,
+            ))
+        }
+        "bitbank" => {
+            let channel_templates = [
+                "depth_whole_$symbol",
+                "depth_diff_$symbol",
+                "transactions_$symbol",
+            ]
+            .iter()
+            .map(|ch| ch.to_string())
+            .collect();
+
+            tokio::spawn(bitbank::run_collection(
+                channel_templates,
+                args.symbols,
+                writer_tx,
+            ))
+        }
+        "gmocoin" => {
+            let channels = ["orderbooks", "trades"]
+                .iter()
+                .map(|ch| ch.to_string())
+                .collect();
+
+            tokio::spawn(gmocoin::run_collection(channels, args.symbols, writer_tx))
+        }
+        "gmofx" => {
+            let channels = ["ticker"]
+                .iter()
+                .map(|ch| ch.to_string())
+                .collect();
+
+            tokio::spawn(gmofx::run_collection(channels, args.symbols, writer_tx))
         }
         exchange => {
             return Err(anyhow!("{exchange} is not supported."));

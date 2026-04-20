@@ -4,10 +4,11 @@ version = "0.1.0"
 edition = "2024"
 
 [features]
-default = ["binancefutures", "binancespot", "bybit"]
+default = ["binancefutures", "binancespot", "bybit", "bitbank"]
 binancefutures = []
 binancespot = []
 bybit = []
+bitbank = []
 
 [dependencies]
 hftbacktest = { path = "../hftbacktest" }
