@@ -4,8 +4,11 @@ members = [
   "hftbacktest",
   "hftbacktest-derive",
   "py-hftbacktest",
-  "collector"
-, "connector"]
+  "collector",
+  "connector",
+  "connector-gmocoin",
+  "bot-forward-test",
+]
 
 [profile.dev]
 opt-level = 0

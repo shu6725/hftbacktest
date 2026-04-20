@@ -133,6 +133,14 @@ async fn main() -> Result<(), anyhow::Error> {
 
             tokio::spawn(gmocoin::run_collection(channels, args.symbols, writer_tx))
         }
+        "gmocoin_trades" => {
+            let channels = ["trades"]
+                .iter()
+                .map(|ch| ch.to_string())
+                .collect();
+
+            tokio::spawn(gmocoin::run_collection(channels, args.symbols, writer_tx))
+        }
         "gmofx" => {
             let channels = ["ticker"]
                 .iter()
